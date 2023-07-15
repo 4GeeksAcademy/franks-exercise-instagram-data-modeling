@@ -7,31 +7,45 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class User(Base):
+    __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
+    password = Column(String(250))
+    favorites = Column(Integer, ForeignKey('likes.id'))
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Likes(Base):
+    __tablename__ = 'likes'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    followers = relationship('Followers')
+    comments = relationship('Comments')
+    posts = relationship('Posts')
+    users = relationship('User')
 
-    def to_dict(self):
-        return {}
+class Followers(Base):
+    __tablename__ = 'followers'
+    id = Column(Integer, primary_key=True)
+    instagram_handle = Column(String(1))
+    following = Column(String(250), nullable=True)
+    favorites = Column(Integer, ForeignKey('likes.id'))
+
+class Posts(Base):
+    __tablename__ = 'posts'
+    id = Column(Integer, primary_key=True)
+    comment_text = Column(String(250))
+    who_wrote_comment = Column(String(250))
+    likes_of_comment = Column(String(250))
+    likes = Column(Integer, ForeignKey('likes.id'))
+    
+
+class Comments(Base):
+    __tablename__ = 'comments'
+    id = Column(Integer, primary_key=True)
+    comments = Column(String(250))
+    likes = Column(Integer, ForeignKey('likes.id'))
+
+def to_dict(self):
+    return {}
 
 ## Draw from SQLAlchemy base
-try:
-    result = render_er(Base, 'diagram.png')
-    print("Success! Check the diagram.png file")
-except Exception as e:
-    print("There was a problem genering the diagram")
-    raise e
+render_er(Base, 'diagram.png')
